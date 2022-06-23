@@ -72,3 +72,25 @@ func (r *ReservationPostgres) Delete(reservationId int) error {
 	//TODO implement me
 	return errors.New("delete not implemented")
 }
+
+func (r *ReservationPostgres) GetAllByTime(time string) ([]models.Reservation, error) {
+	var reservations []models.Reservation
+
+	// получил все брони в указанное время
+	selectReservationsQuery := fmt.Sprintf("SELECT r.id, r.restaurant, r.customer, r.table_id, lower(r.time), upper(r.time) FROM %s r WHERE time@>$1", reservationTable)
+	rows, err := r.db.Query(selectReservationsQuery, time)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var reservation models.Reservation
+		err = rows.Scan(&reservation.Id, &reservation.Restaurant, &reservation.Customer, &reservation.Table, &reservation.Time[0], &reservation.Time[1])
+		if err != nil {
+			return nil, err
+		}
+		reservations = append(reservations, reservation)
+	}
+
+	return reservations, nil
+}

@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"os"
 	"restaurant-reservation/pkg/handler"
 	"restaurant-reservation/pkg/repository"
@@ -10,9 +11,9 @@ import (
 )
 
 func main() {
-	//if err := initConfig(); err != nil {
-	//	logrus.Fatalf("error initializing configs: %s", err.Error())
-	//}
+	if err := initConfig(); err != nil {
+		logrus.Fatalf("error initializing configs: %s", err.Error())
+	}
 
 	if err := godotenv.Load(); err != nil {
 		logrus.Fatalf("error loading env variables: %s", err.Error())
@@ -36,7 +37,15 @@ func main() {
 	handlers := handler.NewHandler(services)
 
 	srv := new(Server)
-	if err := srv.Run(os.Getenv("PORT"), handlers.InitRoutes()); err != nil {
+	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
 		logrus.Fatalf("error occured while runnning http server: %s", err.Error())
 	}
+}
+
+func initConfig() error {
+	viper.SetConfigFile("config")
+	viper.AddConfigPath("./configs")
+	viper.SetConfigName("config")
+	viper.SetConfigType("yml")
+	return viper.ReadInConfig()
 }

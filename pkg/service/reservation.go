@@ -9,6 +9,10 @@ type ReservationService struct {
 	repo repository.Reservation
 }
 
+func (r *ReservationService) GetAllByTime(time string) ([]models.Reservation, error) {
+	return r.repo.GetAllByTime(time)
+}
+
 func NewReservationService(repo repository.Reservation) *ReservationService {
 	return &ReservationService{repo: repo}
 }
