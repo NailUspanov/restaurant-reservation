@@ -16,7 +16,7 @@ func NewHandler(services *service.Service) *Handler {
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 
-	restaurants := router.Group("/restaurants")
+	restaurants := router.Group("/restaurants", h.timeValidation)
 	{
 		restaurants.POST("/", h.createReservation)
 		restaurants.POST("/available", h.getAvailable)

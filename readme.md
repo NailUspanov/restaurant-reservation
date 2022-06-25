@@ -1,9 +1,6 @@
 # Aero Restaurant Reservation REST API
 ## Test project
 
-
-[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
-
 Небольшая система бронирования столиков
 
 - БД PostgreSQL
