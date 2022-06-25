@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"regexp"
 	"restaurant-reservation/pkg/models"
+	"strings"
+	time2 "time"
 )
 
 func (h *Handler) getAvailable(c *gin.Context) {
@@ -39,5 +41,26 @@ func (h *Handler) getAvailable(c *gin.Context) {
 func isTimeValid(time string) bool {
 	timePattern := viper.GetString("time_pattern")
 	reger, _ := regexp.Compile(timePattern)
-	return reger.MatchString(time)
+
+	parsedTime := strings.Trim(time, ")")
+	parsedTime = strings.Trim(parsedTime, "[")
+
+	times := strings.Split(parsedTime, ", ")
+	timeStart, err := time2.Parse("2006-01-2 15:04", times[0])
+	if err != nil {
+		return false
+	}
+	timeEnd, err := time2.Parse("2006-01-2 15:04", times[1])
+	if err != nil {
+		return false
+	}
+
+	return reger.MatchString(time) && timeEnd.Sub(timeStart).Hours() == 2 && isStartTimeValid(timeStart)
+
+}
+
+func isStartTimeValid(timeStart time2.Time) bool {
+	return !timeStart.Before(time2.Now()) && timeStart.Before(time2.Now().AddDate(0, 2, 0)) &&
+		timeStart.Before(time2.Date(timeStart.Year(), timeStart.Month(), timeStart.Day(), 20, 1, 0, 0, timeStart.Location())) &&
+		timeStart.After(time2.Date(timeStart.Year(), timeStart.Month(), timeStart.Day(), 8, 59, 0, 0, timeStart.Location()))
 }
