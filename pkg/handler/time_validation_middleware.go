@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/spf13/viper"
@@ -46,12 +47,12 @@ func isTimeValid(time string) bool {
 }
 
 func isStartTimeValid(timeStart time2.Time) bool {
-	a := timeStart.Year() >= time2.Now().Year()
-	b := timeStart.Month() >= time2.Now().Month()
-	c := timeStart.Day() >= time2.Now().Day()
-	d := timeStart.Hour() >= time2.Now().Hour()
-	e := timeStart.Minute() >= time2.Now().Minute()
-	return a && b && c && d && e && timeStart.Before(time2.Now().AddDate(0, 2, 0)) &&
-		timeStart.Before(time2.Date(timeStart.Year(), timeStart.Month(), timeStart.Day(), 20, 1, 0, 0, timeStart.Location())) &&
+	now := time2.Now()
+	time, err := time2.Parse("2006-1-2 15:04", fmt.Sprintf("%d-%d-%d %d:%d", now.Year(), int(now.Month()), now.Day(), now.Hour(), now.Minute()))
+	if err != nil {
+		return false
+	}
+	return !timeStart.Before(time) && timeStart.Before(time2.Now().AddDate(0, 2, 0)) &&
+		timeStart.Before(time2.Date(timeStart.Year(), timeStart.Month(), timeStart.Day(), 21, 1, 0, 0, timeStart.Location())) &&
 		timeStart.After(time2.Date(timeStart.Year(), timeStart.Month(), timeStart.Day(), 8, 59, 0, 0, timeStart.Location()))
 }
