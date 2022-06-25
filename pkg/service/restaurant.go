@@ -28,20 +28,20 @@ func (r *RestaurantService) GetAvailable(peopleQuantity int, time string) ([]mod
 	availableRestaurantTables := make(map[int][]models.Table)
 	availableRestaurantResponse := make([]models.AvailableRestaurantResponse, 0, 5)
 
-	// если брони в указанное время есть, проверяю есть ли достаточное количество мест для новой брони
+	// если брони в указанное время есть, проверяю, есть ли достаточное количество мест для новой брони
 	if len(reservations) > 0 {
 
 		for _, v := range reservations {
-			// инициализирую пустыми массимвами
+			// инициализирую пустыми слайсами
 			if unavailableRestaurantTables[v.Restaurant] == nil {
 				unavailableRestaurantTables[v.Restaurant] = make([]int, 0, 3)
 				availableRestaurantTables[v.Restaurant] = make([]models.Table, 0, 3)
 			}
-			// добавляю занятый стол в мапу
+			// добавляю занятый стол в мапу, где key - id ресторана, value - слайс занятых столов
 			unavailableRestaurantTables[v.Restaurant] = append(unavailableRestaurantTables[v.Restaurant], v.Table)
 		}
 
-		// заполняю мапу свободных столов
+		// заполняю мапу свободных столов, где key - id ресторана, value - слайс свободных столов
 		for _, v := range unavailableRestaurantTables {
 			tables, err := r.repo.Table.GetAllNotIn(v)
 			if err != nil {
@@ -52,7 +52,7 @@ func (r *RestaurantService) GetAvailable(peopleQuantity int, time string) ([]mod
 			}
 		}
 
-		// из множества доступных столов вычислить общее количество доступных мест
+		// из множества доступных столов вычисляю общее количество доступных мест
 		for k, v := range availableRestaurantTables {
 			seats := 0
 			for _, table := range v {
@@ -63,6 +63,7 @@ func (r *RestaurantService) GetAvailable(peopleQuantity int, time string) ([]mod
 			}
 		}
 
+		// создаю и заполняю слайс с ресторанами(id), где есть достаточное количество свободных мест
 		availableRestaurants := make([]int, len(availableRestaurantTables))
 		i := 0
 		for k := range availableRestaurantTables {
@@ -70,10 +71,13 @@ func (r *RestaurantService) GetAvailable(peopleQuantity int, time string) ([]mod
 			i++
 		}
 
+		// получаю слайс всех доступных ресторанов по их id
 		restaurants, err := r.repo.Restaurant.GetByIds(availableRestaurants)
 		if err != nil {
 			return nil, err
 		}
+
+		// формирую ответ
 		for _, restaurant := range restaurants {
 			availableRestaurantResponse = append(availableRestaurantResponse, models.AvailableRestaurantResponse{
 				Name:            restaurant.Name,
@@ -84,11 +88,14 @@ func (r *RestaurantService) GetAvailable(peopleQuantity int, time string) ([]mod
 			})
 		}
 	} else { // если броней в указанное время нет, проверяю вместимость доступных ресторанов для компании
+
+		// получаю вместительность всех ресторанов в виде мапы, где key - id ресторана, value - вместимость
 		restaurantsCapacity, err := r.repo.Table.GetAllRestaurantsCapacity()
 		if err != nil {
 			return nil, err
 		}
 
+		// проверяю, поместится ли компания людей в ресторан
 		for k, v := range restaurantsCapacity {
 			if peopleQuantity <= v {
 				tables, err := r.repo.Table.GetAllByRestaurant(k)
@@ -99,6 +106,7 @@ func (r *RestaurantService) GetAvailable(peopleQuantity int, time string) ([]mod
 			}
 		}
 
+		// создаю и заполняю слайс доступных ресторанов
 		availableRestaurants := make([]int, len(availableRestaurantTables))
 		i := 0
 		for k := range availableRestaurantTables {
@@ -106,11 +114,13 @@ func (r *RestaurantService) GetAvailable(peopleQuantity int, time string) ([]mod
 			i++
 		}
 
+		// получаю слайс всех доступных ресторанов по их id
 		restaurants, err := r.repo.Restaurant.GetByIds(availableRestaurants)
 		if err != nil {
 			return nil, err
 		}
 
+		// формирую ответ
 		for _, restaurant := range restaurants {
 			var availableRestaurant models.AvailableRestaurantResponse
 

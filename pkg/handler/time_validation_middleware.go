@@ -11,6 +11,7 @@ import (
 	time2 "time"
 )
 
+// middleware функция, которая проверяет, верно ли введен диапазон времени
 func (h *Handler) timeValidation(c *gin.Context) {
 	type RequestType struct {
 		Time string `json:"time"`

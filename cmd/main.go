@@ -11,14 +11,16 @@ import (
 )
 
 func main() {
+	// инициализирую yml конфиг
 	if err := initConfig(); err != nil {
 		logrus.Fatalf("error initializing configs: %s", err.Error())
 	}
-
+	// инициализирую env конфиг
 	if err := godotenv.Load(); err != nil {
 		logrus.Fatalf("error loading env variables: %s", err.Error())
 	}
 
+	//соединение с бд
 	db, err := repository.NewPostgresDB(repository.Config{
 		Host:     os.Getenv("DB_HOST"),
 		Port:     os.Getenv("DB_PORT"),
@@ -32,10 +34,14 @@ func main() {
 		logrus.Fatalf("failed to initialize db %s", err.Error())
 	}
 
+	//прокидываю инстанс бд и создаю репозитории
 	repos := repository.NewRepository(db)
+	//прокидываю репозитории в сервисы
 	services := service.NewService(repos)
+	//сервисы в хендлеры
 	handlers := handler.NewHandler(services)
 
+	//запускаю сервер на порту 8000
 	srv := new(Server)
 	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
 		logrus.Fatalf("error occured while runnning http server: %s", err.Error())
