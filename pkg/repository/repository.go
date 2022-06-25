@@ -17,6 +17,7 @@ type Restaurant interface {
 	Create(restaurant models.Restaurant) (int, error)
 	GetAll() ([]models.Restaurant, error)
 	GetById(restaurantId int) (models.Restaurant, error)
+	GetByIds(restaurantIds []int) ([]models.Restaurant, error)
 	Delete(restaurantId int) error
 }
 

@@ -25,7 +25,7 @@ func (t *TablePostgres) GetAllNotIn(args []int) ([]models.Table, error) {
 		arr[i] = i + 2
 	}
 	selectAvailableTablesQuery :=
-		fmt.Sprintf("select * from "+tablesTable+" where id not in ($1"+strings.Repeat(",$%d", len(args)-1)+")", arr...)
+		fmt.Sprintf("select * from "+tablesTable+" where id not in ($1"+strings.Repeat(",$%d", count)+")", arr...)
 
 	s := make([]interface{}, len(args))
 	for i, j := range args {

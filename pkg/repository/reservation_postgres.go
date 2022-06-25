@@ -77,7 +77,7 @@ func (r *ReservationPostgres) GetAllByTime(time string) ([]models.Reservation, e
 	var reservations []models.Reservation
 
 	// получил все брони в указанное время
-	selectReservationsQuery := fmt.Sprintf("SELECT r.id, r.restaurant, r.customer, r.table_id, lower(r.time), upper(r.time) FROM %s r WHERE time@>$1", reservationTable)
+	selectReservationsQuery := fmt.Sprintf("SELECT r.id, r.restaurant, r.customer, r.table_id, lower(r.time), upper(r.time) FROM %s r WHERE time&&$1", reservationTable)
 	rows, err := r.db.Query(selectReservationsQuery, time)
 	if err != nil {
 		return nil, err

@@ -63,47 +63,66 @@ func (r *RestaurantService) GetAvailable(peopleQuantity int, time string) ([]mod
 			}
 		}
 
-		for k, v := range availableRestaurantTables {
-			restaurant, err := r.repo.Restaurant.GetById(k)
-			if err != nil {
-				return nil, err
-			}
+		availableRestaurants := make([]int, len(availableRestaurantTables))
+		i := 0
+		for k := range availableRestaurantTables {
+			availableRestaurants[i] = k
+			i++
+		}
+
+		restaurants, err := r.repo.Restaurant.GetByIds(availableRestaurants)
+		if err != nil {
+			return nil, err
+		}
+		for _, restaurant := range restaurants {
 			availableRestaurantResponse = append(availableRestaurantResponse, models.AvailableRestaurantResponse{
 				Name:            restaurant.Name,
 				Location:        restaurant.Location,
 				AvgWaitingTime:  restaurant.AvgWaitingTime,
 				AvgBillAmount:   restaurant.AvgBillAmount,
-				AvailableTables: v,
+				AvailableTables: availableRestaurantTables[restaurant.Id],
 			})
 		}
-
 	} else { // если броней в указанное время нет, проверяю вместимость доступных ресторанов для компании
-
 		restaurantsCapacity, err := r.repo.Table.GetAllRestaurantsCapacity()
 		if err != nil {
 			return nil, err
 		}
+
 		for k, v := range restaurantsCapacity {
-			var availableRestaurant models.AvailableRestaurantResponse
 			if peopleQuantity <= v {
 				tables, err := r.repo.Table.GetAllByRestaurant(k)
 				if err != nil {
 					return nil, err
 				}
-				restaurant, err := r.GetById(k)
-				if err != nil {
-					return nil, err
-				}
-
-				availableRestaurant.Name = restaurant.Name
-				availableRestaurant.Location = restaurant.Location
-				availableRestaurant.AvgBillAmount = restaurant.AvgBillAmount
-				availableRestaurant.AvgWaitingTime = restaurant.AvgWaitingTime
-				availableRestaurant.AvailableTables = tables
-
-				availableRestaurantResponse = append(availableRestaurantResponse, availableRestaurant)
+				availableRestaurantTables[k] = tables
 			}
 		}
+
+		availableRestaurants := make([]int, len(availableRestaurantTables))
+		i := 0
+		for k := range availableRestaurantTables {
+			availableRestaurants[i] = k
+			i++
+		}
+
+		restaurants, err := r.repo.Restaurant.GetByIds(availableRestaurants)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, restaurant := range restaurants {
+			var availableRestaurant models.AvailableRestaurantResponse
+
+			availableRestaurant.Name = restaurant.Name
+			availableRestaurant.Location = restaurant.Location
+			availableRestaurant.AvgBillAmount = restaurant.AvgBillAmount
+			availableRestaurant.AvgWaitingTime = restaurant.AvgWaitingTime
+			availableRestaurant.AvailableTables = availableRestaurantTables[restaurant.Id]
+
+			availableRestaurantResponse = append(availableRestaurantResponse, availableRestaurant)
+		}
+
 	}
 
 	return availableRestaurantResponse, nil

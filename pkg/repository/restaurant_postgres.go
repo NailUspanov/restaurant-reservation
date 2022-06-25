@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"restaurant-reservation/pkg/models"
+	"strings"
 )
 
 type RestaurantPostgres struct {
@@ -31,7 +32,26 @@ func (r *RestaurantPostgres) GetById(restaurantId int) (models.Restaurant, error
 	return restaurant, err
 }
 
+func (r *RestaurantPostgres) GetByIds(restaurantIds []int) ([]models.Restaurant, error) {
+	var restaurants []models.Restaurant
+
+	count := len(restaurantIds) - 1
+	arr := make([]any, count)
+	for i := range arr {
+		arr[i] = i + 2
+	}
+	selectRestaurantsQuery := fmt.Sprintf("select * from "+restaurantTable+" where id in ($1"+strings.Repeat(",$%d", count)+") ORDER BY avg_waiting_time, avg_bill_amount", arr...)
+
+	s := make([]interface{}, len(restaurantIds))
+	for i, j := range restaurantIds {
+		s[i] = j
+	}
+
+	err := r.db.Select(&restaurants, selectRestaurantsQuery, s...)
+
+	return restaurants, err
+}
+
 func (r *RestaurantPostgres) Delete(restaurantId int) error {
 	return errors.New("")
-
 }
