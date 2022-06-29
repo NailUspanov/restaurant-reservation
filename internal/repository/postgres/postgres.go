@@ -1,4 +1,4 @@
-package repository
+package postgres
 
 import (
 	"fmt"
@@ -7,11 +7,11 @@ import (
 )
 
 const (
-	customersTable          = "customers"
-	restaurantTable         = "restaurants"
-	tablesTable             = "tables"
-	reservationTable        = "reservations"
-	seatingArrangementTable = "seating_arrangements"
+	CustomersTable          = "customers"
+	RestaurantTable         = "restaurants"
+	TablesTable             = "tables"
+	ReservationTable        = "reservations"
+	SeatingArrangementTable = "seating_arrangements"
 )
 
 type Config struct {

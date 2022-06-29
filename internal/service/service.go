@@ -1,6 +1,6 @@
 package service
 
-import "restaurant-reservation/pkg/repository"
+import "restaurant-reservation/internal/repository"
 
 type Service struct {
 	repository.Reservation

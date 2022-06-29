@@ -1,8 +1,9 @@
 package service
 
 import (
-	"restaurant-reservation/pkg/models"
-	"restaurant-reservation/pkg/repository"
+	"restaurant-reservation/internal/domain"
+	"restaurant-reservation/internal/domain/dto"
+	"restaurant-reservation/internal/repository"
 )
 
 type RestaurantService struct {
@@ -13,11 +14,11 @@ func NewRestaurantService(repo repository.Repository) *RestaurantService {
 	return &RestaurantService{repo: repo}
 }
 
-func (r *RestaurantService) Create(restaurant models.Restaurant) (int, error) {
+func (r *RestaurantService) Create(restaurant domain.Restaurant) (int, error) {
 	return r.repo.Restaurant.Create(restaurant)
 }
 
-func (r *RestaurantService) GetAvailable(peopleQuantity int, time string) ([]models.AvailableRestaurantResponse, error) {
+func (r *RestaurantService) GetAvailable(peopleQuantity int, time string) ([]dto.AvailableRestaurantResponse, error) {
 
 	reservations, err := r.repo.Reservation.GetAllByTime(time)
 	if err != nil {
@@ -25,8 +26,8 @@ func (r *RestaurantService) GetAvailable(peopleQuantity int, time string) ([]mod
 	}
 
 	unavailableRestaurantTables := make(map[int][]int)
-	availableRestaurantTables := make(map[int][]models.Table)
-	availableRestaurantResponse := make([]models.AvailableRestaurantResponse, 0, 5)
+	availableRestaurantTables := make(map[int][]domain.Table)
+	availableRestaurantResponse := make([]dto.AvailableRestaurantResponse, 0, 5)
 
 	// если брони в указанное время есть, проверяю, есть ли достаточное количество мест для новой брони
 	if len(reservations) > 0 {
@@ -35,7 +36,7 @@ func (r *RestaurantService) GetAvailable(peopleQuantity int, time string) ([]mod
 			// инициализирую пустыми слайсами
 			if unavailableRestaurantTables[v.Restaurant] == nil {
 				unavailableRestaurantTables[v.Restaurant] = make([]int, 0, 3)
-				availableRestaurantTables[v.Restaurant] = make([]models.Table, 0, 3)
+				availableRestaurantTables[v.Restaurant] = make([]domain.Table, 0, 3)
 			}
 			// добавляю занятый стол в мапу, где key - id ресторана, value - слайс занятых столов
 			unavailableRestaurantTables[v.Restaurant] = append(unavailableRestaurantTables[v.Restaurant], v.Table)
@@ -79,7 +80,7 @@ func (r *RestaurantService) GetAvailable(peopleQuantity int, time string) ([]mod
 
 		// формирую ответ
 		for _, restaurant := range restaurants {
-			availableRestaurantResponse = append(availableRestaurantResponse, models.AvailableRestaurantResponse{
+			availableRestaurantResponse = append(availableRestaurantResponse, dto.AvailableRestaurantResponse{
 				Name:            restaurant.Name,
 				Location:        restaurant.Location,
 				AvgWaitingTime:  restaurant.AvgWaitingTime,
@@ -122,7 +123,7 @@ func (r *RestaurantService) GetAvailable(peopleQuantity int, time string) ([]mod
 
 		// формирую ответ
 		for _, restaurant := range restaurants {
-			var availableRestaurant models.AvailableRestaurantResponse
+			var availableRestaurant dto.AvailableRestaurantResponse
 
 			availableRestaurant.Name = restaurant.Name
 			availableRestaurant.Location = restaurant.Location
@@ -138,11 +139,11 @@ func (r *RestaurantService) GetAvailable(peopleQuantity int, time string) ([]mod
 	return availableRestaurantResponse, nil
 }
 
-func (r *RestaurantService) GetAll() ([]models.Restaurant, error) {
+func (r *RestaurantService) GetAll() ([]domain.Restaurant, error) {
 	return r.repo.Restaurant.GetAll()
 }
 
-func (r *RestaurantService) GetById(restaurantId int) (models.Restaurant, error) {
+func (r *RestaurantService) GetById(restaurantId int) (domain.Restaurant, error) {
 	return r.repo.Restaurant.GetById(restaurantId)
 }
 

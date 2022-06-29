@@ -1,10 +1,10 @@
-package repository
+package postgres
 
 import (
 	"context"
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"restaurant-reservation/pkg/models"
+	"restaurant-reservation/internal/domain"
 	"strings"
 )
 
@@ -16,8 +16,8 @@ func NewTablePostgres(db *sqlx.DB) *TablePostgres {
 	return &TablePostgres{db: db}
 }
 
-func (t *TablePostgres) GetAllNotIn(args []int) ([]models.Table, error) {
-	var tables []models.Table
+func (t *TablePostgres) GetAllNotIn(args []int) ([]domain.Table, error) {
+	var tables []domain.Table
 
 	count := len(args) - 1
 	arr := make([]any, count)
@@ -25,7 +25,7 @@ func (t *TablePostgres) GetAllNotIn(args []int) ([]models.Table, error) {
 		arr[i] = i + 2
 	}
 	selectAvailableTablesQuery :=
-		fmt.Sprintf("select * from "+tablesTable+" where id not in ($1"+strings.Repeat(",$%d", count)+")", arr...)
+		fmt.Sprintf("select * from "+TablesTable+" where id not in ($1"+strings.Repeat(",$%d", count)+")", arr...)
 
 	s := make([]interface{}, len(args))
 	for i, j := range args {
@@ -40,9 +40,9 @@ func (t *TablePostgres) GetAllNotIn(args []int) ([]models.Table, error) {
 	return tables, nil
 }
 
-func (t *TablePostgres) GetAllByRestaurant(restaurantId int) ([]models.Table, error) {
-	var tables []models.Table
-	getRestaurantTablesQuery := fmt.Sprintf("SELECT t.* FROM %s t WHERE t.restaurant=$1", tablesTable)
+func (t *TablePostgres) GetAllByRestaurant(restaurantId int) ([]domain.Table, error) {
+	var tables []domain.Table
+	getRestaurantTablesQuery := fmt.Sprintf("SELECT t.* FROM %s t WHERE t.restaurant=$1", TablesTable)
 	err := t.db.Select(&tables, getRestaurantTablesQuery, restaurantId)
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (t *TablePostgres) GetAllByRestaurant(restaurantId int) ([]models.Table, er
 
 func (t *TablePostgres) GetAllRestaurantsCapacity() (map[int]int, error) {
 	result := make(map[int]int)
-	getAllQuery := fmt.Sprintf("SELECT t.restaurant, SUM(capacity) as capacity FROM %s t GROUP BY t.restaurant", tablesTable)
+	getAllQuery := fmt.Sprintf("SELECT t.restaurant, SUM(capacity) as capacity FROM %s t GROUP BY t.restaurant", TablesTable)
 	rows, err := t.db.QueryxContext(context.TODO(), getAllQuery)
 	if err != nil {
 		return nil, err

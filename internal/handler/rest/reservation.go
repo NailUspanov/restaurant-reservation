@@ -1,15 +1,15 @@
-package handler
+package rest
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"net/http"
-	"restaurant-reservation/pkg/models"
+	"restaurant-reservation/internal/domain/dto"
 )
 
 func (h *Handler) createReservation(c *gin.Context) {
 
-	var input models.ReservationRequest
+	var input dto.ReservationRequest
 	if err := c.ShouldBindBodyWith(&input, binding.JSON); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return

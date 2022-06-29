@@ -1,8 +1,8 @@
-package handler
+package rest
 
 import (
 	"github.com/gin-gonic/gin"
-	"restaurant-reservation/pkg/service"
+	"restaurant-reservation/internal/service"
 )
 
 type Handler struct {

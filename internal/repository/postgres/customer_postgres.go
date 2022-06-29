@@ -1,4 +1,4 @@
-package repository
+package postgres
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ func NewCustomerPostgres(db *sqlx.DB) *CustomerPostgres {
 func (c *CustomerPostgres) GetCustomerIdByPhone(phone string) (int, error) {
 	var customerId int
 
-	selectCustomerQuery := fmt.Sprintf("SELECT c.id FROM %s c WHERE c.phone=$1", customersTable)
+	selectCustomerQuery := fmt.Sprintf("SELECT c.id FROM %s c WHERE c.phone=$1", CustomersTable)
 	row := c.db.QueryRow(selectCustomerQuery, phone)
 	if err := row.Scan(&customerId); err != nil {
 		return 0, err
@@ -28,7 +28,7 @@ func (c *CustomerPostgres) GetCustomerIdByPhone(phone string) (int, error) {
 func (c *CustomerPostgres) Create(name string, phone string) (int, error) {
 	var customerId int
 
-	createCustomerQuery := fmt.Sprintf("INSERT INTO %s (name, phone) VALUES ($1, $2) RETURNING id", customersTable)
+	createCustomerQuery := fmt.Sprintf("INSERT INTO %s (name, phone) VALUES ($1, $2) RETURNING id", CustomersTable)
 	row := c.db.QueryRow(createCustomerQuery, name, phone)
 	if err := row.Scan(&customerId); err != nil {
 		return 0, err

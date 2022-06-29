@@ -1,8 +1,8 @@
 package service
 
 import (
-	"restaurant-reservation/pkg/models"
-	"restaurant-reservation/pkg/repository"
+	"restaurant-reservation/internal/domain"
+	"restaurant-reservation/internal/repository"
 )
 
 type TableService struct {
@@ -17,10 +17,10 @@ func NewTableService(repos repository.Table) *TableService {
 	return &TableService{repos: repos}
 }
 
-func (t *TableService) GetAllNotIn(args []int) ([]models.Table, error) {
+func (t *TableService) GetAllNotIn(args []int) ([]domain.Table, error) {
 	return t.repos.GetAllNotIn(args)
 }
 
-func (t *TableService) GetAllByRestaurant(restaurantId int) ([]models.Table, error) {
+func (t *TableService) GetAllByRestaurant(restaurantId int) ([]domain.Table, error) {
 	return t.repos.GetAllByRestaurant(restaurantId)
 }

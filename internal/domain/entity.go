@@ -1,4 +1,4 @@
-package models
+package domain
 
 import "time"
 
@@ -8,14 +8,6 @@ type Reservation struct {
 	Customer   int          `json:"customer" db:"customer"`
 	Table      int          `json:"table" db:"table_id"`
 	Time       [2]time.Time `json:"time" db:"time"`
-}
-
-type ReservationRequest struct {
-	Restaurant    int    `json:"restaurant"`
-	CustomerName  string `json:"customer_name"`
-	CustomerPhone string `json:"customer_phone"`
-	Table         int    `json:"table" db:"table_id"`
-	Time          string `json:"time"`
 }
 
 type Table struct {
@@ -42,12 +34,4 @@ type Restaurant struct {
 	Location       string `json:"location" db:"location"`
 	AvgWaitingTime int    `json:"avg_waiting_time" db:"avg_waiting_time"`
 	AvgBillAmount  int    `json:"avg_bill_amount" db:"avg_bill_amount"`
-}
-
-type AvailableRestaurantResponse struct {
-	Name            string  `json:"name" db:"name"`
-	Location        string  `json:"location" db:"location"`
-	AvgWaitingTime  int     `json:"avg_waiting_time" db:"avg_waiting_time"`
-	AvgBillAmount   int     `json:"avg_bill_amount" db:"avg_bill_amount"`
-	AvailableTables []Table `json:"available_tables"`
 }

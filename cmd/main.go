@@ -5,9 +5,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
-	"restaurant-reservation/pkg/handler"
-	"restaurant-reservation/pkg/repository"
-	"restaurant-reservation/pkg/service"
+	"restaurant-reservation/internal/handler/rest"
+	"restaurant-reservation/internal/repository"
+	"restaurant-reservation/internal/repository/postgres"
+	"restaurant-reservation/internal/service"
 )
 
 func main() {
@@ -21,7 +22,7 @@ func main() {
 	}
 
 	//соединение с бд
-	db, err := repository.NewPostgresDB(repository.Config{
+	db, err := postgres.NewPostgresDB(postgres.Config{
 		Host:     os.Getenv("DB_HOST"),
 		Port:     os.Getenv("DB_PORT"),
 		Username: os.Getenv("DB_USERNAME"),
@@ -39,7 +40,7 @@ func main() {
 	//прокидываю репозитории в сервисы
 	services := service.NewService(repos)
 	//сервисы в хендлеры
-	handlers := handler.NewHandler(services)
+	handlers := rest.NewHandler(services)
 
 	//запускаю сервер на порту 8000
 	srv := new(Server)
